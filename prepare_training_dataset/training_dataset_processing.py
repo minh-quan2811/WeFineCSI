@@ -10,6 +10,8 @@ from scipy.signal import spectrogram
 from facenet_pytorch import MTCNN
 from transformers import AutoFeatureExtractor
 
+from prepare_training_dataset.csi_filters import apply_csi_filters
+
 
 # Global label map for emotions
 label_map = {'Happy': 0, 'Sad': 1, 'Neutral': 2, 'Angry': 3}
@@ -19,13 +21,17 @@ class VideoCSIDataset(Dataset):
     """PyTorch Dataset for synchronized Video + CSI emotion data."""
 
     def __init__(self, root_dir, feature_extractor, transform=None,
-                 segment_length=None, step_size=None, fs=10000):
+                 segment_length=None, step_size=None, fs=10000,
+                 use_filter=False, use_pca=False, n_components=10):
         self.root_dir = root_dir
         self.transform = transform
         self.segment_length = segment_length
         self.step_size = step_size
         self.feature_extractor = feature_extractor
         self.fs = fs
+        self.use_filter = use_filter
+        self.use_pca = use_pca
+        self.n_components = n_components
         self.mtcnn = MTCNN(image_size=224, margin=0)
 
         self.data_segments = self._load_dataset()
@@ -40,16 +46,19 @@ class VideoCSIDataset(Dataset):
         one_hot_label = torch.zeros(len(label_map))
         one_hot_label[label] = 1
 
-        # Process CSI spectrogram
         A = self._process_csi_data([csi_segment])
-        spectrogram = self._process_A_to_spectrograms(A)[0]
-        normalized_spectrogram = self._normalize_spectrogram(spectrogram)
+
+        if self.use_filter:
+            A_for_filter = np.transpose(A, (0, 2, 1))
+            A_filtered = apply_csi_filters(A_for_filter, use_pca=self.use_pca, n_components=self.n_components)
+            A = np.transpose(A_filtered, (0, 2, 1))
+
+        spectrogram_tensor = self._process_A_to_spectrograms(A)[0]
+        normalized_spectrogram = self._normalize_spectrogram(spectrogram_tensor)
 
         return video_segment, normalized_spectrogram, one_hot_label
 
-    # -----------------------------
     # Internal helpers
-    # -----------------------------
     def _normalize_spectrogram(self, spectrograms):
         means = spectrograms.mean(dim=(-2, -1), keepdim=True)
         stds = spectrograms.std(dim=(-2, -1), keepdim=True)
@@ -73,9 +82,10 @@ class VideoCSIDataset(Dataset):
                 Sxx_resized = cv2.resize(Sxx, (224, 224), interpolation=cv2.INTER_LINEAR)
                 spectrograms[segment_idx, feature_idx, :, :] = torch.from_numpy(Sxx_resized).float()
 
-        subcarriers_to_remove = list(range(0, 6)) + [32] + list(range(59, 64))
-        subcarriers_to_keep = [i for i in range(64) if i not in subcarriers_to_remove]
-        spectrograms = spectrograms[:, subcarriers_to_keep, :, :]
+        if not self.use_pca:
+            subcarriers_to_remove = list(range(0, 6)) + [32] + list(range(59, 64))
+            subcarriers_to_keep = [i for i in range(num_features) if i not in subcarriers_to_remove]
+            spectrograms = spectrograms[:, subcarriers_to_keep, :, :]
 
         return torch.FloatTensor(spectrograms)
 

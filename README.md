@@ -131,6 +131,18 @@ Process raw emotion data and create train/val/test splits:
 python main.py prepare --data-dir "./Emotions dataset" --output-dir ./processing_data/my_video_csi_dataset
 ```
 
+With Hampel + Butterworth filters applied to CSI data before building spectrograms:
+
+```bash
+python main.py prepare --data-dir "./Emotions dataset" --output-dir ./processing_data/my_video_csi_dataset --use-filter
+```
+
+With filters and PCA to reduce feature dimensions:
+
+```bash
+python main.py prepare --data-dir "./Emotions dataset" --output-dir ./processing_data/my_video_csi_dataset --use-filter --use-pca --n-components 10
+```
+
 **Options:**
 
 | Flag | Description | Default |
@@ -141,6 +153,9 @@ python main.py prepare --data-dir "./Emotions dataset" --output-dir ./processing
 | `--step-size` | Step size for segmentation | `400` |
 | `--train-split` | Training set ratio | `0.8` |
 | `--val-split` | Validation set ratio | `0.1` |
+| `--use-filter` | Apply Hampel + Butterworth filters to CSI data | `False` |
+| `--use-pca` | Apply PCA after filters to reduce feature dimensions (requires `--use-filter`) | `False` |
+| `--n-components` | Number of PCA components to keep | `10` |
 
 ### 3. Train Model
 
@@ -206,6 +221,8 @@ python main.py predict --model-path ./model_weights/model_epoch_15 --csi-file ./
 - Face detection and extraction from video
 - Synchronized video-CSI pairing
 - Train/val/test split (80%/10%/10%)
+- Optional Hampel + Butterworth signal filtering
+- Optional PCA for feature dimension reduction
 
 ### Training
 - Knowledge distillation loss (cross-entropy + MSE)

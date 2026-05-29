@@ -44,7 +44,10 @@ def prepare_dataset(args):
         args.data_dir,
         feature_extractor,
         segment_length=args.segment_length,
-        step_size=args.step_size
+        step_size=args.step_size,
+        use_filter=args.use_filter,
+        use_pca=args.use_filter and args.use_pca,
+        n_components=args.n_components,
     )
 
     print(f"\nTotal samples: {len(dataset)}")
@@ -233,6 +236,9 @@ def build_parser():
     p_prepare.add_argument('--step-size', default=400, type=int, help='Step size for segmentation')
     p_prepare.add_argument('--train-split', default=0.8, type=float, help='Training set ratio')
     p_prepare.add_argument('--val-split', default=0.1, type=float, help='Validation set ratio')
+    p_prepare.add_argument('--use-filter', action='store_true', default=False, help='Apply Hampel + Butterworth filters to CSI data')
+    p_prepare.add_argument('--use-pca', action='store_true', default=False, help='Apply PCA after filters (requires --use-filter)')
+    p_prepare.add_argument('--n-components', default=10, type=int, help='Number of PCA components (default: 10)')
     p_prepare.set_defaults(func=prepare_dataset)
 
     # train
