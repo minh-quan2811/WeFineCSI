@@ -1,9 +1,29 @@
-# emotion-recognition-using-csi
+# WeFineCSI - Research and Application of Wifi CSI for Diagnosing Emotions in Mental Healthcare 
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.11+-blue.svg">
+  <img src="https://img.shields.io/badge/PyTorch-2.0+-red.svg">
+  <img src="https://img.shields.io/badge/HuggingFace-Transformers-yellow.svg">
+  <img src="https://img.shields.io/badge/Model-Vision_Transformer-green.svg">
+  <img src="https://img.shields.io/badge/Model-ResNet-orange.svg">
+  <img src="https://img.shields.io/badge/Data-WiFi_CSI-purple.svg">
+  <img src="https://img.shields.io/badge/Signal-Processing-lightgrey.svg">
+  <img src="https://img.shields.io/badge/License-MIT-lightgrey.svg">
+</p>
+
+---
+
+<p align="center">
+  <img src="assets/WeFine_image.jpg" alt="WeFine" width="800">
+</p>
 
 This project uses WiFi Channel State Information (CSI) to recognize emotions by analyzing breathing patterns. The method is non-invasive and preserves privacy because it does not rely on cameras or wearable devices. A Vision Transformer (ViT) trained on facial expressions is used to transfer knowledge to a CSI-based model, improving emotion classification from CSI spectrogram data.
+
 ## Demo
 
-[![Watch the demo](assets/WeFine_image.jpg)](https://youtu.be/IGxeG4zzgJk)
+Watch product demo here
+
+[![Watch the demo](assets/wf_video_thumbnail.jpg)](https://youtu.be/IGxeG4zzgJk)
 
 ---
 
@@ -11,6 +31,7 @@ This project uses WiFi Channel State Information (CSI) to recognize emotions by 
 
 1. [Overview](#overview)
 2. [System Design](#system-design)
+3. [Product Demo](#product-demo)
 3. [Model Architecture & Training](#model-architecture--training)
 4. [Tech Stack](#tech-stack)
 5. [Dataset Structure](#dataset-structure)
@@ -41,6 +62,14 @@ This project uses knowledge distillation to transfer emotion recognition capabil
 The diagram below illustrates the end-to-end system architecture, from data collection through to real-time emotion inference.
 
 ![System Design](assets/system_design.jpg)
+
+---
+
+## Product Demo
+
+Two ESP modules, controlled by a Raspberry Pi, are placed at the two ends of the neck pillow to sense the user's breathing pattern via Wi-Fi signals, with one serving as the transmitter and the other as the receiver.
+
+![Product Demo](assets/CSI_Product.jpg)
 
 ---
 
